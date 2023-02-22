@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using Azure.Core.Extensions;
 using Azure.ResourceManager;
 
@@ -12,12 +13,14 @@ namespace Microsoft.Extensions.Azure
     public static class ArmClientBuilderExtensions
     {
         /// <summary>
-        /// Registers a <see cref="ArmClient"/> instance with connection options loaded from the provided <paramref name="configuration"/> instance.
+        /// Registers a <see cref="ArmClient"/> instance.
         /// </summary>
-        public static IAzureClientBuilder<ArmClient, ArmClientOptions> AddArmClient<TBuilder, TConfiguration>(this TBuilder builder, TConfiguration configuration)
-            where TBuilder : IAzureClientFactoryBuilderWithConfiguration<TConfiguration>
+        /// <param name="builder"> The builder to register with. </param>
+        /// <param name="defaultSubscriptionId"> The id of the default Azure subscription. </param>
+        public static IAzureClientBuilder<ArmClient, ArmClientOptions> AddArmClient<TBuilder>(this TBuilder builder, string defaultSubscriptionId)
+            where TBuilder : IAzureClientFactoryBuilderWithCredential
         {
-            return builder.RegisterClientFactory<ArmClient, ArmClientOptions>(configuration);
+            return builder.RegisterClientFactory<ArmClient, ArmClientOptions>((options, token) => new ArmClient(token, defaultSubscriptionId, options));
         }
     }
 }
